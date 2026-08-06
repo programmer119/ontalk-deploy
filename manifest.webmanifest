@@ -1,0 +1,27 @@
+{
+  "id": "/?pwa=ggul-counselor",
+  "name": "온톡 상담사",
+  "short_name": "온톡",
+  "description": "잠금화면 상담 요청 알림과 웹 음성통화를 제공하는 온톡 상담사 앱",
+  "lang": "ko-KR",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f7f8fb",
+  "theme_color": "#17181c",
+  "icons": [
+    {
+      "src": "/icon-192.png?v=43",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png?v=43",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
