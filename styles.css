@@ -56,5 +56,6 @@ input,select,textarea{font-size:16px}
 
 .native-app-card{border:1px solid rgba(65,112,255,.28);background:linear-gradient(145deg,rgba(65,112,255,.12),rgba(255,255,255,.96))}.native-app-copy{font-size:16px;line-height:1.65;margin:8px 0 16px}.native-download{display:flex;align-items:center;justify-content:center;width:100%;min-height:52px;text-decoration:none;font-size:17px;font-weight:800}.mini-badge.success{background:#e8f8ef;color:#167447}.ggul-native-shell .notification-setup-card{display:none}
 
-/* ONTALK v92 visible build marker */
+
+/* ONTALK v93 visible build marker */
 .build-version{position:fixed;top:max(8px,env(safe-area-inset-top));right:max(10px,env(safe-area-inset-right));z-index:12000;padding:6px 10px;border-radius:999px;background:rgba(23,24,28,.88);color:#fff;font-size:13px;font-weight:800;letter-spacing:.04em;box-shadow:0 6px 20px rgba(0,0,0,.18);backdrop-filter:blur(8px)}
