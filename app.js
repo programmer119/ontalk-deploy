@@ -1106,7 +1106,7 @@ function registerServiceWorker() {
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 4, , 5]);
-                    return [4, navigator.serviceWorker.register('/service-worker.js?v=56', { scope: '/' })];
+                    return [4, navigator.serviceWorker.register('/service-worker.js?v=88', { scope: '/' })];
                 case 2:
                     serviceWorkerRegistration = _a.sent();
                     return [4, navigator.serviceWorker.ready];
