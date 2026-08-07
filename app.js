@@ -1,6 +1,3 @@
-var API_BASE = String((window.ONTALK_CONFIG && window.ONTALK_CONFIG.apiBase) || '').replace(/\/$/, '');
-function apiUrl(value) { return API_BASE && String(value).indexOf('/') === 0 ? API_BASE + value : value; }
-'use strict';
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -46,6 +43,11 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     }
     return to.concat(ar || Array.prototype.slice.call(from));
 };
+var _this = this;
+var API_BASE = String((window.ONTALK_CONFIG && window.ONTALK_CONFIG.apiBase) || '').replace(/\/$/, '');
+var FREEPBX_URL = String((window.ONTALK_CONFIG && window.ONTALK_CONFIG.freePbxUrl) || 'https://api-ontalk.suaveforge.com:18444/admin/');
+var apiUrl = function (value) { return API_BASE && String(value).startsWith('/') ? API_BASE + value : value; };
+'use strict';
 if (!Object.assign) {
     Object.assign = function assign(target) {
         if (target == null)
@@ -126,6 +128,11 @@ var waitingIntent = null;
 var adminViewerRole = 'customer';
 var selectedPersonId = null;
 var analyticsPeriod = 7;
+var ADMIN_PAGE_SIZE = 10;
+var historyPage = 1;
+var eventPage = 1;
+var adminHistoryRows = [];
+var adminEventRows = [];
 var deferredInstallPrompt = null;
 var serviceWorkerRegistration = null;
 var pushDeviceToken = null;
@@ -161,17 +168,17 @@ function api(url_1) {
                     requestOptions = Object.assign({}, options);
                     requestOptions.credentials = 'include';
                     requestOptions.headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {});
-                    if (!window.fetch) return [3, 3];
-                    return [4, fetch(apiUrl(url), requestOptions)];
+                    if (!window.fetch) return [3 /*break*/, 3];
+                    return [4 /*yield*/, fetch(apiUrl(url), requestOptions)];
                 case 1:
                     response = _a.sent();
                     status = response.status;
                     ok = response.ok;
-                    return [4, response.json().catch(function () { return ({}); })];
+                    return [4 /*yield*/, response.json().catch(function () { return ({}); })];
                 case 2:
                     data = _a.sent();
-                    return [3, 5];
-                case 3: return [4, xhrJson(url, requestOptions)];
+                    return [3 /*break*/, 5];
+                case 3: return [4 /*yield*/, xhrJson(url, requestOptions)];
                 case 4:
                     response = _a.sent();
                     status = response.status;
@@ -192,7 +199,7 @@ function api(url_1) {
                         error.data = data;
                         throw error;
                     }
-                    return [2, data];
+                    return [2 /*return*/, data];
             }
         });
     });
@@ -236,7 +243,7 @@ if (!window.PointerEvent) {
     $('#loginTab').addEventListener('touchend', function (event) { event.preventDefault(); switchAuthTab('login'); });
     $('#signupTab').addEventListener('touchend', function (event) { event.preventDefault(); switchAuthTab('signup'); });
 }
-$('#loginForm').addEventListener('submit', function (event) { return __awaiter(void 0, void 0, void 0, function () {
+$('#loginForm').addEventListener('submit', function (event) { return __awaiter(_this, void 0, void 0, function () {
     var form, button, result, error_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -250,28 +257,28 @@ $('#loginForm').addEventListener('submit', function (event) { return __awaiter(v
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 4, 5, 6]);
-                return [4, api('/api/auth/login', { method: 'POST', body: JSON.stringify(formValues(form)) })];
+                return [4 /*yield*/, api('/api/auth/login', { method: 'POST', body: JSON.stringify(formValues(form)) })];
             case 2:
                 result = _a.sent();
                 auth = Object.assign({ authenticated: true }, result);
                 form.reset();
-                return [4, enterApp()];
+                return [4 /*yield*/, enterApp()];
             case 3:
                 _a.sent();
-                return [3, 6];
+                return [3 /*break*/, 6];
             case 4:
                 error_1 = _a.sent();
                 if (error_1.message !== 'AUTH_REQUIRED')
                     $('#loginError').textContent = error_1.message;
-                return [3, 6];
+                return [3 /*break*/, 6];
             case 5:
                 setBusy(button, false);
-                return [7];
-            case 6: return [2];
+                return [7 /*endfinally*/];
+            case 6: return [2 /*return*/];
         }
     });
 }); });
-$('#signupForm').addEventListener('submit', function (event) { return __awaiter(void 0, void 0, void 0, function () {
+$('#signupForm').addEventListener('submit', function (event) { return __awaiter(_this, void 0, void 0, function () {
     var form, button, result, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -285,37 +292,37 @@ $('#signupForm').addEventListener('submit', function (event) { return __awaiter(
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 4, 5, 6]);
-                return [4, api('/api/auth/signup', { method: 'POST', body: JSON.stringify(formValues(form)) })];
+                return [4 /*yield*/, api('/api/auth/signup', { method: 'POST', body: JSON.stringify(formValues(form)) })];
             case 2:
                 result = _a.sent();
                 auth = Object.assign({ authenticated: true }, result);
                 form.reset();
                 toast("".concat(result.member.extension, " \uB0B4\uC120\uC774 \uC0DD\uC131\uB410\uC2B5\uB2C8\uB2E4."));
-                return [4, enterApp()];
+                return [4 /*yield*/, enterApp()];
             case 3:
                 _a.sent();
-                return [3, 6];
+                return [3 /*break*/, 6];
             case 4:
                 error_2 = _a.sent();
                 $('#signupError').textContent = error_2.message;
-                return [3, 6];
+                return [3 /*break*/, 6];
             case 5:
                 setBusy(button, false);
-                return [7];
-            case 6: return [2];
+                return [7 /*endfinally*/];
+            case 6: return [2 /*return*/];
         }
     });
 }); });
-$('#logoutButton').addEventListener('click', function () { return __awaiter(void 0, void 0, void 0, function () {
+$('#logoutButton').addEventListener('click', function () { return __awaiter(_this, void 0, void 0, function () {
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 phone.stop();
-                return [4, api('/api/auth/logout', { method: 'POST' }).catch(function () { })];
+                return [4 /*yield*/, api('/api/auth/logout', { method: 'POST' }).catch(function () { })];
             case 1:
                 _a.sent();
                 showAuth();
-                return [2];
+                return [2 /*return*/];
         }
     });
 }); });
@@ -348,28 +355,27 @@ function registerNativeCounselorDevice() {
             switch (_a.label) {
                 case 0:
                     if (auth.role !== 'counselor' || !isNativeCounselorApp())
-                        return [2];
+                        return [2 /*return*/];
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 3, , 4]);
                     document.documentElement.classList.add('ggul-native-shell');
-                    return [4, api('/api/native/device/register', { method: 'POST', body: '{}' })];
+                    return [4 /*yield*/, api('/api/native/device/register', { method: 'POST', body: '{}' })];
                 case 2:
                     result = _a.sent();
                     window.GgulAndroid.registerDevice(String(result.deviceToken || ''), String(result.portalUrl || window.location.origin));
-                    return [3, 4];
+                    return [3 /*break*/, 4];
                 case 3:
                     error_3 = _a.sent();
                     toast('상담사 앱 알림 등록 실패: ' + error_3.message);
-                    return [3, 4];
-                case 4: return [2];
+                    return [3 /*break*/, 4];
+                case 4: return [2 /*return*/];
             }
         });
     });
 }
 function enterApp() {
     return __awaiter(this, void 0, void 0, function () {
-        var appCard;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -378,38 +384,49 @@ function enterApp() {
                     $('#headerUser').textContent = auth.user || (auth.member && auth.member.username) || '-';
                     $('#headerRole').textContent = roleLabels[auth.role] || auth.role;
                     showRole(auth.role);
-                    return [4, registerServiceWorker()];
+                    return [4 /*yield*/, registerServiceWorker()];
                 case 1:
                     _a.sent();
-                    return [4, loadSnapshot()];
+                    return [4 /*yield*/, loadSnapshot()];
                 case 2:
                     _a.sent();
                     connectEvents();
-                    if (!(auth.role === 'customer' || auth.role === 'counselor')) return [3, 4];
-                    return [4, phone.start()];
+                    if (!(auth.role === 'customer' || auth.role === 'counselor')) return [3 /*break*/, 4];
+                    return [4 /*yield*/, phone.start()];
                 case 3:
                     _a.sent();
                     _a.label = 4;
                 case 4:
                     if (auth.role === 'counselor') {
-                        appCard = document.getElementById('androidCounselorAppCard');
-                        if (appCard)
-                            appCard.classList.toggle('hidden', isNativeCounselorApp());
                         registerNativeCounselorDevice();
                         restorePushToken();
                         renderPushStatus();
                         handlePendingActionIntent();
                     }
-                    return [2];
+                    return [2 /*return*/];
             }
         });
     });
 }
+function setAdminPage(page) {
+    var portal = $('#adminPortalView');
+    var operations = $('#adminView');
+    if (!portal || !operations)
+        return;
+    portal.classList.toggle('hidden', page !== 'home');
+    operations.classList.toggle('hidden', page !== 'operations');
+    if (window.history && window.history.replaceState) {
+        var hash = page === 'operations' ? '#admin' : '#admin-home';
+        window.history.replaceState(null, '', window.location.pathname + window.location.search + hash);
+    }
+}
 function showRole(role) {
     $$('.role-view').forEach(function (view) { return view.classList.add('hidden'); });
-    var view = $("#".concat(role, "View"));
+    var view = role === 'admin' ? $('#adminPortalView') : $("#".concat(role, "View"));
     if (view)
         view.classList.remove('hidden');
+    if (role === 'admin')
+        setAdminPage('home');
     $$('#roleNav button').forEach(function (button) {
         var allowed = button.dataset.view === role;
         button.classList.toggle('hidden', !allowed);
@@ -424,16 +441,16 @@ function loadSnapshot() {
                 case 0:
                     _b.trys.push([0, 2, , 3]);
                     _a = render;
-                    return [4, api('/api/snapshot')];
+                    return [4 /*yield*/, api('/api/snapshot')];
                 case 1:
                     _a.apply(void 0, [_b.sent()]);
-                    return [3, 3];
+                    return [3 /*break*/, 3];
                 case 2:
                     error_4 = _b.sent();
                     if (error_4.message !== 'AUTH_REQUIRED')
                         toast(error_4.message);
-                    return [3, 3];
-                case 3: return [2];
+                    return [3 /*break*/, 3];
+                case 3: return [2 /*return*/];
             }
         });
     });
@@ -544,25 +561,25 @@ function startCounselorCall(extension) {
             switch (_a.label) {
                 case 0:
                     if (!phone.registered)
-                        return [2, toast('웹 통화 단말 연결을 기다려 주세요.')];
+                        return [2 /*return*/, toast('웹 통화 단말 연결을 기다려 주세요.')];
                     if (phone.session || waitingIntent)
-                        return [2, toast('이미 상담 연결이 진행 중입니다.')];
+                        return [2 /*return*/, toast('이미 상담 연결이 진행 중입니다.')];
                     activateAudio();
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 3, , 4]);
-                    return [4, api("/api/counselors/".concat(encodeURIComponent(extension), "/call-intent"), { method: 'POST', body: '{}' })];
+                    return [4 /*yield*/, api("/api/counselors/".concat(encodeURIComponent(extension), "/call-intent"), { method: 'POST', body: '{}' })];
                 case 2:
                     result = _a.sent();
                     waitingIntent = result.intent;
                     showCallLayer('waiting', waitingIntent.counselorUsername || extension, result.push && result.push.success > 0 ? '상담사 잠금화면으로 요청을 보냈습니다.' : '상담사의 응답을 기다리고 있습니다.');
                     startCallIntentPolling(waitingIntent.id);
-                    return [3, 4];
+                    return [3 /*break*/, 4];
                 case 3:
                     error_5 = _a.sent();
                     toast(error_5.message);
-                    return [3, 4];
-                case 4: return [2];
+                    return [3 /*break*/, 4];
+                case 4: return [2 /*return*/];
             }
         });
     });
@@ -579,27 +596,27 @@ function cancelWaitingCallIntent() {
             switch (_a.label) {
                 case 0:
                     if (!waitingIntent || waitingIntent.status !== 'pending')
-                        return [2];
+                        return [2 /*return*/];
                     button = $('#cancelCallIntent');
                     setBusy(button, true, '취소 중…');
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 3, 4, 5]);
-                    return [4, api("/api/call-intents/".concat(encodeURIComponent(waitingIntent.id), "/cancel"), { method: 'POST', body: '{}' })];
+                    return [4 /*yield*/, api("/api/call-intents/".concat(encodeURIComponent(waitingIntent.id), "/cancel"), { method: 'POST', body: '{}' })];
                 case 2:
                     result = _a.sent();
                     stopCallIntentPolling();
                     waitingIntent = null;
                     showCallEnded(result.intent && result.intent.status === 'accepted' ? '이미 상담사가 수락하여 취소할 수 없습니다.' : '상담 요청을 취소했습니다.');
-                    return [3, 5];
+                    return [3 /*break*/, 5];
                 case 3:
                     error_6 = _a.sent();
                     toast(error_6.message);
-                    return [3, 5];
+                    return [3 /*break*/, 5];
                 case 4:
                     setBusy(button, false);
-                    return [7];
-                case 5: return [2];
+                    return [7 /*endfinally*/];
+                case 5: return [2 /*return*/];
             }
         });
     });
@@ -613,19 +630,19 @@ function startCallIntentPolling(intentId) {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 5, , 6]);
-                    return [4, api("/api/call-intents/".concat(encodeURIComponent(intentId)))];
+                    return [4 /*yield*/, api("/api/call-intents/".concat(encodeURIComponent(intentId)))];
                 case 1:
                     result = _a.sent();
                     waitingIntent = result.intent;
-                    if (!(result.intent.status === 'accepted')) return [3, 3];
+                    if (!(result.intent.status === 'accepted')) return [3 /*break*/, 3];
                     stopCallIntentPolling();
                     peer = result.intent.counselorUsername || result.intent.counselorExtension;
                     showCallLayer('outgoing', peer, '상담사가 요청을 수락했습니다. 음성 통화를 연결합니다.');
-                    return [4, phone.call(result.targetUri, peer)];
+                    return [4 /*yield*/, phone.call(result.targetUri, peer)];
                 case 2:
                     _a.sent();
                     waitingIntent = null;
-                    return [3, 4];
+                    return [3 /*break*/, 4];
                 case 3:
                     if (result.intent.status === 'rejected') {
                         stopCallIntentPolling();
@@ -643,13 +660,13 @@ function startCallIntentPolling(intentId) {
                         showCallEnded('상담 요청이 취소됐습니다.');
                     }
                     _a.label = 4;
-                case 4: return [3, 6];
+                case 4: return [3 /*break*/, 6];
                 case 5:
                     error_7 = _a.sent();
                     if (error_7.message !== 'AUTH_REQUIRED')
                         toast(error_7.message);
-                    return [3, 6];
-                case 6: return [2];
+                    return [3 /*break*/, 6];
+                case 6: return [2 /*return*/];
             }
         });
     }); };
@@ -685,34 +702,34 @@ function setMyStatus(status) {
                 case 0:
                     extension = snapshot && snapshot.session && snapshot.session.extension;
                     if (!extension)
-                        return [2];
+                        return [2 /*return*/];
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 3, , 4]);
-                    return [4, api("/api/agents/".concat(extension, "/status"), { method: 'POST', body: JSON.stringify({ status: status }) })];
+                    return [4 /*yield*/, api("/api/agents/".concat(extension, "/status"), { method: 'POST', body: JSON.stringify({ status: status }) })];
                 case 2:
                     _a.sent();
                     toast(status === 'available' ? '상담 가능으로 변경했습니다.' : '자리 비움으로 변경했습니다.');
-                    return [3, 4];
+                    return [3 /*break*/, 4];
                 case 3:
                     error_8 = _a.sent();
                     toast(error_8.message);
-                    return [3, 4];
-                case 4: return [2];
+                    return [3 /*break*/, 4];
+                case 4: return [2 /*return*/];
             }
         });
     });
 }
 $('#availableButton').addEventListener('click', function () { return setMyStatus('available'); });
 $('#awayButton').addEventListener('click', function () { return setMyStatus('away'); });
-$('#phoneReconnect').addEventListener('click', function () { return __awaiter(void 0, void 0, void 0, function () { return __generator(this, function (_a) {
+$('#phoneReconnect').addEventListener('click', function () { return __awaiter(_this, void 0, void 0, function () { return __generator(this, function (_a) {
     switch (_a.label) {
         case 0:
             activateAudio();
-            return [4, phone.restart()];
+            return [4 /*yield*/, phone.restart()];
         case 1:
             _a.sent();
-            return [2];
+            return [2 /*return*/];
     }
 }); }); });
 $('#deskHangup').addEventListener('click', function () { return phone.hangup(); });
@@ -755,32 +772,32 @@ function acceptPendingIntent(intentId) {
             switch (_a.label) {
                 case 0:
                     if (!intentId)
-                        return [2];
+                        return [2 /*return*/];
                     activateAudio();
                     $('#acceptIntentButton').disabled = true;
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 5, 6, 7]);
-                    return [4, phone.waitUntilRegistered(15000)];
+                    return [4 /*yield*/, phone.waitUntilRegistered(15000)];
                 case 2:
                     _a.sent();
-                    return [4, api("/api/call-intents/".concat(encodeURIComponent(intentId), "/accept"), { method: 'POST', body: '{}' })];
+                    return [4 /*yield*/, api("/api/call-intents/".concat(encodeURIComponent(intentId), "/accept"), { method: 'POST', body: '{}' })];
                 case 3:
                     _a.sent();
                     acceptedActionIntentId = intentId;
                     toast('상담 요청을 수락했습니다. 고객 통화를 연결합니다.');
-                    return [4, loadSnapshot()];
+                    return [4 /*yield*/, loadSnapshot()];
                 case 4:
                     _a.sent();
-                    return [3, 7];
+                    return [3 /*break*/, 7];
                 case 5:
                     error_9 = _a.sent();
                     toast(error_9.message);
-                    return [3, 7];
+                    return [3 /*break*/, 7];
                 case 6:
                     $('#acceptIntentButton').disabled = false;
-                    return [7];
-                case 7: return [2];
+                    return [7 /*endfinally*/];
+                case 7: return [2 /*return*/];
             }
         });
     });
@@ -792,23 +809,23 @@ function rejectPendingIntent(intentId) {
             switch (_a.label) {
                 case 0:
                     if (!intentId)
-                        return [2];
+                        return [2 /*return*/];
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 4, , 5]);
-                    return [4, api("/api/call-intents/".concat(encodeURIComponent(intentId), "/reject"), { method: 'POST', body: '{}' })];
+                    return [4 /*yield*/, api("/api/call-intents/".concat(encodeURIComponent(intentId), "/reject"), { method: 'POST', body: '{}' })];
                 case 2:
                     _a.sent();
                     toast('상담 요청을 거절했습니다.');
-                    return [4, loadSnapshot()];
+                    return [4 /*yield*/, loadSnapshot()];
                 case 3:
                     _a.sent();
-                    return [3, 5];
+                    return [3 /*break*/, 5];
                 case 4:
                     error_10 = _a.sent();
                     toast(error_10.message);
-                    return [3, 5];
-                case 5: return [2];
+                    return [3 /*break*/, 5];
+                case 5: return [2 /*return*/];
             }
         });
     });
@@ -848,20 +865,20 @@ function renderAdminCalls(calls) {
             switch (_a.label) {
                 case 0:
                     if (!confirm('현재 통화를 종료할까요?'))
-                        return [2];
+                        return [2 /*return*/];
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 3, , 4]);
-                    return [4, api("/api/calls/".concat(button.dataset.hangup, "/hangup"), { method: 'POST' })];
+                    return [4 /*yield*/, api("/api/calls/".concat(button.dataset.hangup, "/hangup"), { method: 'POST' })];
                 case 2:
                     _a.sent();
                     toast('통화 종료 명령을 전송했습니다.');
-                    return [3, 4];
+                    return [3 /*break*/, 4];
                 case 3:
                     error_11 = _a.sent();
                     toast(error_11.message);
-                    return [3, 4];
-                case 4: return [2];
+                    return [3 /*break*/, 4];
+                case 4: return [2 /*return*/];
             }
         });
     }); }); });
@@ -893,12 +910,39 @@ function renderAdminAgents(agents) {
         }
     }); });
 }
+function pageCount(total) {
+    return Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE));
+}
+function clampAdminPage(page, total) {
+    return Math.max(1, Math.min(Number(page) || 1, pageCount(total)));
+}
+function renderPagination(prefix, page, total) {
+    var pages = pageCount(total);
+    var previous = $("#".concat(prefix, "Prev"));
+    var next = $("#".concat(prefix, "Next"));
+    var info = $("#".concat(prefix, "PageInfo"));
+    if (!previous || !next || !info)
+        return;
+    previous.disabled = page <= 1;
+    next.disabled = page >= pages;
+    info.textContent = "".concat(page, " / ").concat(pages, " \u00B7 \uCD1D ").concat(total, "\uAC74");
+}
 function renderHistory(history) {
-    $('#historyEmpty').classList.toggle('hidden', history.length > 0);
-    $('#historyBody').innerHTML = history.map(function (item) { return "<tr><td>".concat(formatDate(item.at), "</td><td>").concat(escapeHtml(item.channel), "</td><td>").concat(escapeHtml(item.caller), "</td><td>").concat(escapeHtml(item.connected), "</td><td>").concat(escapeHtml(item.cause), "</td></tr>"); }).join('');
+    adminHistoryRows = Array.isArray(history) ? history : [];
+    historyPage = clampAdminPage(historyPage, adminHistoryRows.length);
+    var start = (historyPage - 1) * ADMIN_PAGE_SIZE;
+    var rows = adminHistoryRows.slice(start, start + ADMIN_PAGE_SIZE);
+    $('#historyEmpty').classList.toggle('hidden', adminHistoryRows.length > 0);
+    $('#historyBody').innerHTML = rows.map(function (item) { return "<tr><td>".concat(formatDate(item.at), "</td><td>").concat(escapeHtml(item.channel), "</td><td>").concat(escapeHtml(item.caller), "</td><td>").concat(escapeHtml(item.connected), "</td><td>").concat(escapeHtml(item.cause), "</td></tr>"); }).join('');
+    renderPagination('history', historyPage, adminHistoryRows.length);
 }
 function renderEvents(events) {
-    $('#eventList').innerHTML = (events.length ? events.slice(0, 40) : [{ at: new Date().toISOString(), type: 'WAITING', message: '이벤트 대기 중' }]).map(function (event) { return "<div class=\"event-row\"><time>".concat(formatDate(event.at), "</time><b>").concat(escapeHtml(event.type), "</b><span>").concat(escapeHtml(event.message || [event.endpoint, event.status, event.channel, event.cause].filter(Boolean).join(' · ') || '-'), "</span></div>"); }).join('');
+    adminEventRows = Array.isArray(events) ? events : [];
+    eventPage = clampAdminPage(eventPage, adminEventRows.length);
+    var start = (eventPage - 1) * ADMIN_PAGE_SIZE;
+    var rows = adminEventRows.length ? adminEventRows.slice(start, start + ADMIN_PAGE_SIZE) : [{ at: new Date().toISOString(), type: 'WAITING', message: '이벤트 대기 중' }];
+    $('#eventList').innerHTML = rows.map(function (event) { return "<div class=\"event-row\"><time>".concat(formatDate(event.at), "</time><b>").concat(escapeHtml(event.type), "</b><span>").concat(escapeHtml(event.message || [event.endpoint, event.status, event.channel, event.cause].filter(Boolean).join(' · ') || '-'), "</span></div>"); }).join('');
+    renderPagination('event', eventPage, adminEventRows.length);
 }
 function syncViewerTabs() {
     $('#memberViewerTab').classList.toggle('active', adminViewerRole === 'customer');
@@ -1085,6 +1129,19 @@ $('#counselorViewerTab').addEventListener('click', function () { adminViewerRole
 $$('[data-period]').forEach(function (button) { return button.addEventListener('click', function () { analyticsPeriod = Number(button.dataset.period) || 7; renderPeopleViewer(snapshot); }); });
 $('#peopleSearch').addEventListener('input', function () { return renderPeopleViewer(snapshot); });
 $('#marketRefresh').addEventListener('click', loadSnapshot);
+$('#openAdminOperations').addEventListener('click', function () { return setAdminPage('operations'); });
+$('#backAdminPortal').addEventListener('click', function () { return setAdminPage('home'); });
+function openFreePbx() {
+    var opened = window.open(FREEPBX_URL, '_blank', 'noopener,noreferrer');
+    if (!opened)
+        toast('팝업이 차단됐습니다. 브라우저에서 새 창 열기를 허용해 주세요.');
+}
+$('#openFreePbx').addEventListener('click', openFreePbx);
+$('#openFreePbxOperations').addEventListener('click', openFreePbx);
+$('#historyPrev').addEventListener('click', function () { historyPage -= 1; renderHistory(adminHistoryRows); });
+$('#historyNext').addEventListener('click', function () { historyPage += 1; renderHistory(adminHistoryRows); });
+$('#eventPrev').addEventListener('click', function () { eventPage -= 1; renderEvents(adminEventRows); });
+$('#eventNext').addEventListener('click', function () { eventPage += 1; renderEvents(adminEventRows); });
 $('#adminRefresh').addEventListener('click', loadSnapshot);
 function isIosDevice() {
     return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -1102,26 +1159,26 @@ function registerServiceWorker() {
             switch (_a.label) {
                 case 0:
                     if (!('serviceWorker' in navigator) || !hasSecureContext())
-                        return [2, null];
+                        return [2 /*return*/, null];
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 4, , 5]);
-                    return [4, navigator.serviceWorker.register('/service-worker.js?v=93', { scope: '/' })];
+                    return [4 /*yield*/, navigator.serviceWorker.register('/service-worker.js?v=98', { scope: '/' })];
                 case 2:
                     serviceWorkerRegistration = _a.sent();
-                    return [4, navigator.serviceWorker.ready];
+                    return [4 /*yield*/, navigator.serviceWorker.ready];
                 case 3:
                     _a.sent();
                     restorePushToken();
                     if (pushDeviceToken && serviceWorkerRegistration.active) {
                         serviceWorkerRegistration.active.postMessage({ type: 'GGUL_PUSH_TOKEN', deviceToken: pushDeviceToken });
                     }
-                    return [2, serviceWorkerRegistration];
+                    return [2 /*return*/, serviceWorkerRegistration];
                 case 4:
                     error_12 = _a.sent();
                     console.warn('GGUL_SERVICE_WORKER_ERROR', error_12);
-                    return [2, null];
-                case 5: return [2];
+                    return [2 /*return*/, null];
+                case 5: return [2 /*return*/];
             }
         });
     });
@@ -1304,8 +1361,8 @@ function continuePushRegistrationAfterPermission() {
             switch (_b.label) {
                 case 0:
                     _a = serviceWorkerRegistration;
-                    if (_a) return [3, 2];
-                    return [4, registerServiceWorker()];
+                    if (_a) return [3 /*break*/, 2];
+                    return [4 /*yield*/, registerServiceWorker()];
                 case 1:
                     _a = (_b.sent());
                     _b.label = 2;
@@ -1313,27 +1370,27 @@ function continuePushRegistrationAfterPermission() {
                     registration = _a;
                     if (!registration)
                         throw new Error('서비스 워커를 등록하지 못했습니다. HTTPS 주소와 브라우저 설정을 확인하세요.');
-                    return [4, api('/api/push/config')];
+                    return [4 /*yield*/, api('/api/push/config')];
                 case 3:
                     config = _b.sent();
-                    return [4, registration.pushManager.getSubscription()];
+                    return [4 /*yield*/, registration.pushManager.getSubscription()];
                 case 4:
                     subscription = _b.sent();
-                    if (!!subscription) return [3, 6];
-                    return [4, registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(config.publicKey) })];
+                    if (!!subscription) return [3 /*break*/, 6];
+                    return [4 /*yield*/, registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(config.publicKey) })];
                 case 5:
                     subscription = _b.sent();
                     _b.label = 6;
-                case 6: return [4, api('/api/push/subscribe', { method: 'POST', body: JSON.stringify({ subscription: subscription.toJSON(), platform: navigator.platform || '' }) })];
+                case 6: return [4 /*yield*/, api('/api/push/subscribe', { method: 'POST', body: JSON.stringify({ subscription: subscription.toJSON(), platform: navigator.platform || '' }) })];
                 case 7:
                     stored = _b.sent();
                     savePushToken(stored.deviceToken);
                     closeNotificationGuide();
                     toast('잠금화면 상담 알림이 켜졌습니다.');
-                    return [4, loadSnapshot()];
+                    return [4 /*yield*/, loadSnapshot()];
                 case 8:
                     _b.sent();
-                    return [2];
+                    return [2 /*return*/];
             }
         });
     });
@@ -1345,45 +1402,45 @@ function enablePushNotifications() {
             switch (_a.label) {
                 case 0:
                     if (auth.role !== 'counselor')
-                        return [2];
+                        return [2 /*return*/];
                     if (!supportsPush()) {
                         toast('이 브라우저는 잠금화면 웹 알림을 지원하지 않습니다. Chrome 또는 홈 화면에 설치한 Safari 앱을 사용하세요.');
                         renderPushStatus();
-                        return [2];
+                        return [2 /*return*/];
                     }
                     if (isIosDevice() && !isStandaloneMode()) {
                         $('#iosInstallGuide').classList.remove('hidden');
                         toast('아이폰은 먼저 홈 화면에 추가한 뒤 설치된 온톡 앱에서 알림을 켜야 합니다.');
-                        return [2];
+                        return [2 /*return*/];
                     }
                     permission = Notification.permission;
                     if (permission === 'denied') {
                         openNotificationGuide('denied');
-                        return [2];
+                        return [2 /*return*/];
                     }
                     if (permission === 'default') {
                         openNotificationGuide('default');
-                        return [2];
+                        return [2 /*return*/];
                     }
                     button = $('#enablePushButton');
                     setBusy(button, true, '알림 등록 중…');
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 3, 4, 5]);
-                    return [4, continuePushRegistrationAfterPermission()];
+                    return [4 /*yield*/, continuePushRegistrationAfterPermission()];
                 case 2:
                     _a.sent();
-                    return [3, 5];
+                    return [3 /*break*/, 5];
                 case 3:
                     error_13 = _a.sent();
                     toast(error_13.message);
                     openNotificationGuide(Notification.permission);
-                    return [3, 5];
+                    return [3 /*break*/, 5];
                 case 4:
                     setBusy(button, false);
                     renderPushStatus();
-                    return [7];
-                case 5: return [2];
+                    return [7 /*endfinally*/];
+                case 5: return [2 /*return*/];
             }
         });
     });
@@ -1394,41 +1451,41 @@ function disablePushNotifications() {
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
-                    if (!!serviceWorkerRegistration) return [3, 2];
-                    return [4, registerServiceWorker()];
+                    if (!!serviceWorkerRegistration) return [3 /*break*/, 2];
+                    return [4 /*yield*/, registerServiceWorker()];
                 case 1:
                     serviceWorkerRegistration = _b.sent();
                     _b.label = 2;
                 case 2:
                     _b.trys.push([2, 9, , 10]);
                     _a = serviceWorkerRegistration;
-                    if (!_a) return [3, 4];
-                    return [4, serviceWorkerRegistration.pushManager.getSubscription()];
+                    if (!_a) return [3 /*break*/, 4];
+                    return [4 /*yield*/, serviceWorkerRegistration.pushManager.getSubscription()];
                 case 3:
                     _a = (_b.sent());
                     _b.label = 4;
                 case 4:
                     subscription = _a;
-                    return [4, api('/api/push/unsubscribe', { method: 'POST', body: JSON.stringify({ endpoint: subscription && subscription.endpoint, deviceToken: pushDeviceToken }) }).catch(function () { })];
+                    return [4 /*yield*/, api('/api/push/unsubscribe', { method: 'POST', body: JSON.stringify({ endpoint: subscription && subscription.endpoint, deviceToken: pushDeviceToken }) }).catch(function () { })];
                 case 5:
                     _b.sent();
-                    if (!subscription) return [3, 7];
-                    return [4, subscription.unsubscribe()];
+                    if (!subscription) return [3 /*break*/, 7];
+                    return [4 /*yield*/, subscription.unsubscribe()];
                 case 6:
                     _b.sent();
                     _b.label = 7;
                 case 7:
                     savePushToken(null);
                     toast('잠금화면 상담 알림을 껐습니다.');
-                    return [4, loadSnapshot()];
+                    return [4 /*yield*/, loadSnapshot()];
                 case 8:
                     _b.sent();
-                    return [3, 10];
+                    return [3 /*break*/, 10];
                 case 9:
                     error_14 = _b.sent();
                     toast(error_14.message);
-                    return [3, 10];
-                case 10: return [2];
+                    return [3 /*break*/, 10];
+                case 10: return [2 /*return*/];
             }
         });
     });
@@ -1492,6 +1549,7 @@ $('#notificationGuidePrimary').addEventListener('click', function () {
     var button = $('#notificationGuidePrimary');
     var permissionRequest;
     try {
+        // Chrome must receive the permission request directly inside the user's click handler.
         permissionRequest = Notification.requestPermission();
     }
     catch (error) {
@@ -1526,25 +1584,25 @@ $('#notificationGuideMissing').addEventListener('click', function () {
     notificationGuideStickyState = 'prompt-not-shown';
     openNotificationGuide('Notification' in window ? Notification.permission : 'unsupported', 'prompt-not-shown');
 });
-$('#notificationGuideRecheck').addEventListener('click', function () { return __awaiter(void 0, void 0, void 0, function () {
+$('#notificationGuideRecheck').addEventListener('click', function () { return __awaiter(_this, void 0, void 0, function () {
     var permission, error_15;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 permission = 'Notification' in window ? Notification.permission : 'unsupported';
-                if (!(permission === 'granted')) return [3, 5];
+                if (!(permission === 'granted')) return [3 /*break*/, 5];
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 3, , 4]);
-                return [4, continuePushRegistrationAfterPermission()];
+                return [4 /*yield*/, continuePushRegistrationAfterPermission()];
             case 2:
                 _a.sent();
-                return [3, 4];
+                return [3 /*break*/, 4];
             case 3:
                 error_15 = _a.sent();
                 toast(error_15.message);
-                return [3, 4];
-            case 4: return [3, 6];
+                return [3 /*break*/, 4];
+            case 4: return [3 /*break*/, 6];
             case 5:
                 if (permission === 'default')
                     openNotificationGuide(permission, notificationGuideStickyState || 'site-controls-required');
@@ -1553,7 +1611,7 @@ $('#notificationGuideRecheck').addEventListener('click', function () { return __
                 _a.label = 6;
             case 6:
                 renderPushStatus();
-                return [2];
+                return [2 /*return*/];
         }
     });
 }); });
@@ -1605,28 +1663,28 @@ window.addEventListener('beforeinstallprompt', function (event) {
     deferredInstallPrompt = event;
     renderPushStatus();
 });
-$('#installPwaButton').addEventListener('click', function () { return __awaiter(void 0, void 0, void 0, function () {
+$('#installPwaButton').addEventListener('click', function () { return __awaiter(_this, void 0, void 0, function () {
     var error_16;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 if (!deferredInstallPrompt)
-                    return [2];
+                    return [2 /*return*/];
                 deferredInstallPrompt.prompt();
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 3, , 4]);
-                return [4, deferredInstallPrompt.userChoice];
+                return [4 /*yield*/, deferredInstallPrompt.userChoice];
             case 2:
                 _a.sent();
-                return [3, 4];
+                return [3 /*break*/, 4];
             case 3:
                 error_16 = _a.sent();
-                return [3, 4];
+                return [3 /*break*/, 4];
             case 4:
                 deferredInstallPrompt = null;
                 renderPushStatus();
-                return [2];
+                return [2 /*return*/];
         }
     });
 }); });
@@ -1654,25 +1712,25 @@ function handlePendingActionIntent() {
             switch (_a.label) {
                 case 0:
                     if (auth.role !== 'counselor' || !pendingActionIntentId || acceptedActionIntentId === pendingActionIntentId)
-                        return [2];
+                        return [2 /*return*/];
                     intentId = pendingActionIntentId;
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 5, , 6]);
-                    return [4, phone.waitUntilRegistered(15000)];
+                    return [4 /*yield*/, phone.waitUntilRegistered(15000)];
                 case 2:
                     _a.sent();
-                    return [4, api("/api/call-intents/".concat(encodeURIComponent(intentId), "/accept"), { method: 'POST', body: '{}' })];
+                    return [4 /*yield*/, api("/api/call-intents/".concat(encodeURIComponent(intentId), "/accept"), { method: 'POST', body: '{}' })];
                 case 3:
                     _a.sent();
                     acceptedActionIntentId = intentId;
                     pendingActionIntentId = null;
                     history.replaceState({}, document.title, '/');
                     toast('상담 요청을 수락했습니다. 고객 통화를 연결합니다.');
-                    return [4, loadSnapshot()];
+                    return [4 /*yield*/, loadSnapshot()];
                 case 4:
                     _a.sent();
-                    return [3, 6];
+                    return [3 /*break*/, 6];
                 case 5:
                     error_17 = _a.sent();
                     if (error_17.code === 'CALL_INTENT_NOT_FOUND') {
@@ -1683,8 +1741,8 @@ function handlePendingActionIntent() {
                     else {
                         toast(error_17.message);
                     }
-                    return [3, 6];
-                case 6: return [2];
+                    return [3 /*break*/, 6];
+                case 6: return [2 /*return*/];
             }
         });
     });
@@ -1721,16 +1779,16 @@ var WebPhone = (function () {
                 switch (_b.label) {
                     case 0:
                         if (auth.role === 'admin')
-                            return [2];
+                            return [2 /*return*/];
                         if (!hasSecureContext()) {
                             this.statusMessage = 'HTTPS 주소로 접속해야 웹 통화를 사용할 수 있습니다.';
                             this.render();
-                            return [2];
+                            return [2 /*return*/];
                         }
                         if (!window.JsSIP) {
                             this.statusMessage = '웹 통화 모듈을 불러오지 못했습니다. 네트워크를 확인하세요.';
                             this.render();
-                            return [2];
+                            return [2 /*return*/];
                         }
                         this.stop();
                         this.connecting = true;
@@ -1740,7 +1798,7 @@ var WebPhone = (function () {
                     case 1:
                         _b.trys.push([1, 3, , 4]);
                         _a = this;
-                        return [4, api('/api/phone/config')];
+                        return [4 /*yield*/, api('/api/phone/config')];
                     case 2:
                         _a.config = _b.sent();
                         socket = new window.JsSIP.WebSocketInterface(this.config.websocketUrl);
@@ -1751,14 +1809,14 @@ var WebPhone = (function () {
                         });
                         this.bindUa();
                         this.ua.start();
-                        return [3, 4];
+                        return [3 /*break*/, 4];
                     case 3:
                         error_18 = _b.sent();
                         this.connecting = false;
                         this.statusMessage = error_18.message;
                         this.render();
-                        return [3, 4];
-                    case 4: return [2];
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
                 }
             });
         });
@@ -1768,10 +1826,10 @@ var WebPhone = (function () {
             switch (_a.label) {
                 case 0:
                     this.stop();
-                    return [4, this.start()];
+                    return [4 /*yield*/, this.start()];
                 case 1:
                     _a.sent();
-                    return [2];
+                    return [2 /*return*/];
             }
         }); });
     };
@@ -2092,7 +2150,7 @@ var WebPhone = (function () {
                     pcConfig: { iceServers: this.config.iceServers || [] },
                     rtcOfferConstraints: { offerToReceiveAudio: true, offerToReceiveVideo: false }
                 });
-                return [2];
+                return [2 /*return*/];
             });
         });
     };
@@ -2292,7 +2350,7 @@ function stopRinging() { if (ringTimer)
 function showIncomingNotification(name) {
     if (!('Notification' in window) || Notification.permission !== 'granted' || document.visibilityState === 'visible')
         return;
-    var options = { body: "".concat(name, "\uB2D8\uACFC \uC74C\uC131 \uD1B5\uD654\uB97C \uC5F0\uACB0\uD569\uB2C8\uB2E4."), tag: 'ggul-incoming-call', requireInteraction: true, renotify: true, icon: '/icon-192.png?v=43', badge: '/icon-192.png?v=43', vibrate: [450, 180, 450, 180, 800] };
+    var options = { body: "".concat(name, "\uB2D8\uACFC \uC74C\uC131 \uD1B5\uD654\uB97C \uC5F0\uACB0\uD569\uB2C8\uB2E4."), tag: 'ggul-incoming-call', requireInteraction: true, renotify: true, icon: '/icon-192.png?v=98', badge: '/icon-192.png?v=98', vibrate: [450, 180, 450, 180, 800] };
     if (serviceWorkerRegistration)
         serviceWorkerRegistration.showNotification('온톡 상담 요청', options).catch(function () { });
 }
@@ -2322,20 +2380,20 @@ function toast(message) {
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function () { return box.classList.remove('show'); }, 2800);
 }
-(function () { return __awaiter(void 0, void 0, void 0, function () {
+(function () { return __awaiter(_this, void 0, void 0, function () {
     var status;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4, api('/api/auth/status').catch(function () { return ({ authenticated: false }); })];
+            case 0: return [4 /*yield*/, api('/api/auth/status').catch(function () { return ({ authenticated: false }); })];
             case 1:
                 status = _a.sent();
                 if (!status.authenticated)
-                    return [2, showAuth()];
+                    return [2 /*return*/, showAuth()];
                 auth = status;
-                return [4, enterApp()];
+                return [4 /*yield*/, enterApp()];
             case 2:
                 _a.sent();
-                return [2];
+                return [2 /*return*/];
         }
     });
 }); })();

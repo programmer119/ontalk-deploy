@@ -9,17 +9,16 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="온톡">
-  <link rel="manifest" href="/manifest.webmanifest?v=93">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=43">
-  <link rel="icon" href="/icon.svg?v=43" type="image/svg+xml">
-  <link rel="stylesheet" href="/styles.css?v=93">
+  <link rel="manifest" href="/manifest.webmanifest?v=98">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=98">
+  <link rel="icon" href="/icon.svg?v=98" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css?v=98">
 </head>
 <body>
-  <div class="build-version" aria-label="배포 버전">ONTALK v93</div>
   <div id="authView" class="auth-shell">
     <header class="auth-header">
       <a class="wordmark" href="#" aria-label="온톡 홈"><span class="honey-dot">온</span><strong>온톡</strong></a>
-      <span>온라인 상담 연결 서비스</span>
+      <div class="auth-header-meta"><span>온라인 상담 연결 서비스</span><span class="build-version" aria-label="배포 버전">ONTALK v98</span></div>
     </header>
     <main class="auth-main">
       <section class="auth-copy">
@@ -62,7 +61,7 @@
         <button data-view="counselor" class="role-counselor">상담 대기실</button>
         <button data-view="admin" class="role-admin">운영 관제</button>
       </nav>
-      <div class="header-user"><span id="headerRole" class="role-pill">-</span><strong id="headerUser">-</strong><button id="logoutButton" class="ghost">로그아웃</button></div>
+      <div class="header-user"><span class="build-version" aria-label="배포 버전">ONTALK v98</span><span id="headerRole" class="role-pill">-</span><strong id="headerUser">-</strong><button id="logoutButton" class="ghost">로그아웃</button></div>
     </header>
 
     <main>
@@ -93,12 +92,6 @@
             <p class="muted">고객에게 표시할 현재 상태를 선택합니다. 통화 중에는 자동으로 통화 중으로 전환됩니다.</p>
             <div class="status-actions"><button id="availableButton" data-my-status="available">상담 가능</button><button id="awayButton" data-my-status="away">자리 비움</button></div>
           </article>
-          <article id="androidCounselorAppCard" class="desk-card span-two native-app-card hidden">
-            <div class="card-head"><div><p class="eyebrow">ANDROID COUNSELOR APP</p><h2>상담사 전용 안드로이드 앱</h2></div><span class="mini-badge success">권장</span></div>
-            <p class="native-app-copy">화면이 꺼져도 상담 요청을 전화처럼 안정적으로 받고, 수락하면 바로 통화 화면으로 이동합니다. 상담사는 브라우저보다 전용 앱을 사용하는 것이 훨씬 편합니다.</p>
-            <a id="androidAppDownload" class="primary-button native-download" href="/downloads/ontalk-counselor.apk" download>상담사 앱 다운로드</a>
-            <p class="helper">Android 전용 · 기존 상담사 아이디와 비밀번호 그대로 로그인</p>
-          </article>
           <article class="desk-card span-two notification-setup-card">
             <div class="card-head"><div><p class="eyebrow">LOCK SCREEN READY</p><h2>화면 꺼짐 상담 알림</h2></div><span id="pushStatusBadge" class="mini-badge">설정 전</span></div>
             <div class="notification-setup-grid">
@@ -119,8 +112,28 @@
         </div>
       </section>
 
+      <section id="adminPortalView" class="role-view hidden admin-portal-wrap">
+        <div class="admin-portal-hero">
+          <div><p class="eyebrow">ADMIN CONTROL CENTER</p><h1>온톡 관리도구</h1><p>운영 업무와 PBX 시스템 설정을 한곳에서 선택합니다.</p></div>
+          <span class="admin-security-badge">최고관리자 전용</span>
+        </div>
+        <div class="admin-entry-grid">
+          <article class="admin-entry-card primary-entry">
+            <div class="admin-entry-icon">운</div>
+            <div><p class="eyebrow">ONTALK OPERATIONS</p><h2>온톡 운영관리</h2><p>회원, 상담사, 실시간 통화, 통화 기록과 서비스 상태를 관리합니다.</p></div>
+            <button id="openAdminOperations" class="primary wide" type="button">운영관리로 이동</button>
+          </article>
+          <article class="admin-entry-card pbx-entry">
+            <div class="admin-entry-icon">PBX</div>
+            <div><p class="eyebrow">FREEPBX SYSTEM</p><h2>PBX 시스템관리</h2><p>내선, ARS, 통화 경로와 Asterisk 설정을 관리합니다.</p></div>
+            <button id="openFreePbx" class="secondary wide" type="button">FreePBX 열기 ↗</button>
+          </article>
+        </div>
+        <p class="admin-entry-note">FreePBX는 별도 시스템이므로 새 탭에서 열리고 다시 로그인이 필요합니다.</p>
+      </section>
+
       <section id="adminView" class="role-view hidden admin-wrap">
-        <div class="admin-top"><div><p class="eyebrow">REAL-TIME OPERATIONS</p><h1>온톡 통화 운영 관제</h1></div><div><span id="adminUpdated">-</span><button id="adminRefresh" class="secondary">새로고침</button></div></div>
+        <div class="admin-top"><div><button id="backAdminPortal" class="admin-back" type="button">← 관리 홈</button><p class="eyebrow">REAL-TIME OPERATIONS</p><h1>온톡 통화 운영 관제</h1></div><div class="admin-top-actions"><span id="adminUpdated">-</span><button id="openFreePbxOperations" class="secondary admin-pbx-button" type="button">FreePBX 열기 ↗</button><button id="adminRefresh" class="secondary" type="button">새로고침</button></div></div>
         <div id="systemBanner" class="system-banner"><span class="pulse"></span><strong>시스템 상태 확인 중</strong><span>AMI 데이터를 불러오고 있습니다.</span></div>
         <div class="metric-grid metric-grid-six">
           <article><span>전체 회원</span><strong id="metricMembers">0</strong><small>가입 계정</small></article>
@@ -167,8 +180,8 @@
           <article class="admin-card span-two"><div class="card-head"><div><p class="eyebrow">LIVE CALLS</p><h2>현재 통화</h2></div><span id="callCountBadge" class="mini-badge">0건</span></div><div class="table-wrap"><table><thead><tr><th>상태</th><th>고객</th><th>상담사</th><th>연결 시간</th><th>경과</th><th></th></tr></thead><tbody id="liveCallsBody"></tbody></table><div id="liveCallsEmpty" class="empty-state">현재 진행 중인 통화가 없습니다.</div></div></article>
           <article class="admin-card"><div class="card-head"><div><p class="eyebrow">SYSTEM</p><h2>서비스 상태</h2></div></div><div id="systemList" class="system-list"></div></article>
           <article class="admin-card"><div class="card-head"><div><p class="eyebrow">COUNSELORS</p><h2>상담사 상태</h2></div></div><div id="adminAgentList" class="admin-agent-list"></div></article>
-          <article class="admin-card span-two"><div class="card-head"><div><p class="eyebrow">CALL HISTORY</p><h2>최근 종료 기록</h2></div></div><div class="table-wrap"><table><thead><tr><th>종료 시각</th><th>채널</th><th>발신</th><th>연결 대상</th><th>종료 원인(코드 / 설명)</th></tr></thead><tbody id="historyBody"></tbody></table><div id="historyEmpty" class="empty-state">저장된 통화 기록이 없습니다.</div></div></article>
-          <article class="admin-card span-two"><div class="card-head"><div><p class="eyebrow">EVENT STREAM</p><h2>최근 이벤트</h2></div><span class="live-label"><i></i>LIVE</span></div><div id="eventList" class="event-list"></div></article>
+          <article class="admin-card span-two"><div class="card-head"><div><p class="eyebrow">CALL HISTORY</p><h2>최근 종료 기록</h2></div><span class="page-size-label">10개씩 보기</span></div><div class="table-wrap"><table><thead><tr><th>종료 시각</th><th>채널</th><th>발신</th><th>연결 대상</th><th>종료 원인(코드 / 설명)</th></tr></thead><tbody id="historyBody"></tbody></table><div id="historyEmpty" class="empty-state">저장된 통화 기록이 없습니다.</div></div><div id="historyPagination" class="pagination-bar"><button id="historyPrev" class="pagination-button" type="button">이전</button><span id="historyPageInfo">1 / 1</span><button id="historyNext" class="pagination-button" type="button">다음</button></div></article>
+          <article class="admin-card span-two"><div class="card-head"><div><p class="eyebrow">EVENT STREAM</p><h2>최근 이벤트</h2></div><div class="card-head-tools"><span class="page-size-label">10개씩 보기</span><span class="live-label"><i></i>LIVE</span></div></div><div id="eventList" class="event-list"></div><div id="eventPagination" class="pagination-bar"><button id="eventPrev" class="pagination-button" type="button">이전</button><span id="eventPageInfo">1 / 1</span><button id="eventNext" class="pagination-button" type="button">다음</button></div></article>
         </div>
       </section>
     </main>
@@ -214,7 +227,7 @@
   </div>
   <div id="toast" class="toast" role="status"></div>
   <script defer src="https://jssip.net/download/releases/jssip-3.10.0.min.js"></script>
-  <script defer src="/config.js?v=93"></script>
-  <script defer src="/app.js?v=93"></script>
+  <script defer src="/config.js?v=98"></script>
+  <script defer src="/app.js?v=98"></script>
 </body>
 </html>
